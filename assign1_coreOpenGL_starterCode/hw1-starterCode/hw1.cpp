@@ -3,7 +3,7 @@
   Assignment 1: Height Fields
   C++ starter code
 
-  Student username: <type your USC username here>
+  Student username: rto
 */
 
 #include <iostream>
@@ -36,6 +36,7 @@ int mousePos[2]; // x,y coordinate of the mouse position
 int leftMouseButton = 0; // 1 if pressed, 0 if not 
 int middleMouseButton = 0; // 1 if pressed, 0 if not
 int rightMouseButton = 0; // 1 if pressed, 0 if not
+BasicPipelineProgram *pipelineProgram;
 
 typedef enum { ROTATE, TRANSLATE, SCALE } CONTROL_STATE;
 CONTROL_STATE controlState = ROTATE;
@@ -48,6 +49,17 @@ float landScale[3] = { 1.0f, 1.0f, 1.0f };
 int windowWidth = 1280;
 int windowHeight = 720;
 char windowTitle[512] = "CSCI 420 homework I";
+
+OpenGLMatrix * matrix;
+GLuint buffer;
+float positions[6][3] = { { -1.0, -1.0, -1.0 }, { 1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 },
+{ -1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 }, { -1.0, 1.0, -1.0 } };
+
+float colors[6][4] =
+{ { 0.0, 0.0, 0.0, 1.0 }, { 1.0, 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0, 1.0 },
+{ 0.0, 0.0, 1.0, 1.0 }, { 1.0, 1.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0, 1.0 } };
+
+GLfloat theta[3] = { 0.0, 0.0, 0.0 };
 
 ImageIO * heightmapImage;
 
@@ -66,9 +78,50 @@ void saveScreenshot(const char * filename)
   delete [] screenshotData;
 }
 
+
+// this routine extracts the projection matrix and upload to GPU
+void bindProgram()
+{
+	// TODO
+	glBindBuffer(GL_ARRAY_BUFFER, buffer); // so that glVertexAttribPointer refers to the correct buffer
+	
+	// In shader program, there is variable called "position" and also "color"
+	// relating this position to 
+	
+	GLuint program = pipelineProgram->GetProgramHandle();
+	GLuint loc = glGetAttribLocation(program, "position");
+	glEnableVertexAttribArray(loc);
+	const void * offset = (const void*)0;
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, offset);
+	GLuint loc2 = glGetAttribLocation(program, "color");
+	glEnableVertexAttribArray(loc2);
+	const void * offset2 = (const void*) sizeof(positions);
+	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset2);
+
+	// missing how to upload to shader
+}
+
+// Will display the quad
+void renderQuad()
+{
+	// TODO
+	GLint first = 0;
+	GLsizei count = 6;
+	glDrawArrays(GL_TRIANGLES, first, count);
+}
+
 void displayFunc()
 {
   // render some stuff...
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	matrix->LoadIdentity();
+	matrix->LookAt(0, 0, 0, 0, 0, -1, 0, 1, 0); // default camera
+	matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
+	matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
+	matrix->Rotate(theta[2], 0.0, 0.0, 1.0);
+	bindProgram();
+	renderQuad();
+	glutSwapBuffers(); // signal to flip the gate...whatever was the active buffer becomes off screen buffer
 }
 
 void idleFunc()
@@ -83,7 +136,12 @@ void idleFunc()
 
 void reshapeFunc(int w, int h)
 {
+	GLfloat aspect = (GLfloat)w / (GLfloat)h;
   glViewport(0, 0, w, h);
+  matrix->SetMatrixMode(OpenGLMatrix::Projection);
+  matrix->LoadIdentity();
+  matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0/aspect, 0.0, 10.0);
+  matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 
   // setup perspective matrix...
 }
@@ -217,6 +275,34 @@ void keyboardFunc(unsigned char key, int x, int y)
   }
 }
 
+void initVBO()
+{
+	// TODO
+	cout << "initVBO" << endl;
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(colors), NULL, GL_STATIC_DRAW);
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positions), positions);
+
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions), sizeof(colors), colors);
+}
+
+void initPipelineProgram()
+{
+	float m[16];
+	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
+	matrix->GetMatrix(m);
+	pipelineProgram->SetModelViewMatrix(m);
+
+	float p[16];
+	matrix->SetMatrixMode(OpenGLMatrix::Projection);
+	matrix->GetMatrix(p);
+	pipelineProgram->SetProjectionMatrix(p);
+	
+}
+
 void initScene(int argc, char *argv[])
 {
   // load the image from a jpeg disk file to main memory
@@ -226,11 +312,19 @@ void initScene(int argc, char *argv[])
     cout << "Error reading image " << argv[1] << "." << endl;
     exit(EXIT_FAILURE);
   }
+  cout << "init scene!!!" << endl;
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // sets everything to black
 
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  // SLIDE DECK 04; SLIDE 44
 
   // do additional initialization here...
+  glEnable(GL_DEPTH_TEST);
+  matrix = new OpenGLMatrix();
+  initVBO();
+  initPipelineProgram();
 }
+
+
 
 int main(int argc, char *argv[])
 {
