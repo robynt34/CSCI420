@@ -33,7 +33,11 @@ char shaderBasePath[1024] = "../openGLHelper-starterCode";
 using namespace std;
 static GLfloat spin = 0.0;
 static GLfloat zStudent = 3 + (1310457641 / 10000000000);
-
+OpenGLMatrix *matrix;
+float positions[3][3] = { { -1.0, -1.0, -1.0 }, { 1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 } };
+float colors[3][3] = { { 0.0, 0.0, 1.0 }, { 1.0, 0.0, -1.0 }, { 0.0, 1.0, 1.0 } };
+GLuint buffer;
+GLfloat theta[3] = { 0.0, 0.0, 0.0 };BasicPipelineProgram *pipelineProgram;
 void spinDisplay(void)
 {
 	spin = spin + 2.0;
@@ -46,33 +50,52 @@ void spinDisplay(void)
 
 void reshape(int w, int h)
 {
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	GLfloat aspect = (GLfloat)w / (GLfloat)h;
+	glViewport(0, 0, w, h);
+	matrix->SetMatrixMode(OpenGLMatrix::Projection);
+	matrix->LoadIdentity();
+	matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0 / aspect, 0.0, 10.0);
+	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 }
 
-void display(void)
+void bindProgram()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glPushMatrix();
-	glRotatef(spin, 0.0, 0.0, 1.0);
-	glBegin(GL_TRIANGLES);
-		glColor3f(0.0, 0.0, 1.0);
-		glVertex3f(0.0, 0.0, 0.0);
+	// bind our buffer, so that glVertexAttribPointer refers
+	// to the correct buffer
+	pipelineProgram->Init("");
+	GLuint program = pipelineProgram->GetProgramHandle();
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	GLuint loc = glGetAttribLocation(program, "position");
+	glEnableVertexAttribArray(loc);
+	const void * offset = (const void*)0;
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, offset);
+	GLuint loc2 = glGetAttribLocation(program, "color");
+	glEnableVertexAttribArray(loc2);
+	const void * offset2 = (const void*) sizeof(positions);
+	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset2);
+	// write projection and modelview matrix to shader
+	// next lexture…
+}
 
-		glColor3f(1.0, 0.0, -1.0);
-		glVertex3f(0.0, 25, 0.0);
+void renderQuad()
+{
+	GLint first = 0; 
+	GLsizei numberOfVertices = 3;
+	glDrawArrays(GL_TRIANGLES, first, numberOfVertices);
+}
 
-		glColor3f(0.0, 1.0, 1.0);
-		glVertex3f(25, 0.0, 0.0);
-	glEnd();
-	glPopMatrix();
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT |
+		GL_DEPTH_BUFFER_BIT);
+	matrix->LoadIdentity();
+	matrix->LookAt(0, 0, 0, 0, 0, -1, 0, 1, 0); // default camera
+	matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
+	matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
+	matrix->Rotate(theta[2], 0.0, 0.0, 1.0);
+	bindProgram();
+	renderQuad();
 	glutSwapBuffers();
-	//glFlush();
 }
 
 void mouse(int button, int state, int x, int y)
@@ -91,28 +114,54 @@ void mouse(int button, int state, int x, int y)
 	}
 }
 
-void init(void)
+void initPipelineProgram()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glShadeModel(GLU_SMOOTH);
-//	glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+	// initialize shader pipeline program (shader lecture)
+	pipelineProgram->Init("shaders/basic.vertexShader.glsl");
 }
 
-int main(int argc, char** argv)
+void initVBO()
+{
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(colors),
+		NULL, GL_STATIC_DRAW); // init buffer’s size, but don’t assign any
+	// data to it
+	// upload position data
+	glBufferSubData(GL_ARRAY_BUFFER, 0,
+		sizeof(positions), positions);
+	// upload color data
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions),
+		sizeof(colors), colors);
+}
+
+void init()
+{
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_DEPTH_TEST);
+	matrix = new OpenGLMatrix();
+	initVBO();
+	initPipelineProgram();
+}
+
+int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(250, 250);
-	glutInitWindowPosition(100, 100);
-	glutCreateWindow("hello");
-	init();
+	// double buffering for smooth animation
+	glutInitDisplayMode(GLUT_DOUBLE |
+		GLUT_DEPTH |
+		GLUT_RGBA);
+	 // window creation and callbacks here (next slide)
+	glutInitWindowSize(800, 800);
+	glutCreateWindow("quad");
+	glewInit();
+		glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
-	glutReshapeFunc(reshape);
+	glutIdleFunc(spinDisplay);
 	glutMouseFunc(mouse);
+		init(); // our custom initialization
 	glutMainLoop();
-	return 0;
+	return(0);
 }
 
 
