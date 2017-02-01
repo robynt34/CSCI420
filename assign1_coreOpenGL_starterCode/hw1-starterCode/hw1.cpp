@@ -55,13 +55,12 @@ ImageIO * heightmapImage;
 OpenGLMatrix *matrix;
 GLuint buffer;
 BasicPipelineProgram *pipelineProgram;
+float zStudent = 3 + (1310457641.0 / 10000000000);
 
-float positions[6][3] =
-{ { -1.0, -1.0, -1.0 }, { 1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 },
-{ -1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 }, { -1.0, 1.0, -1.0 } }; 
-float colors[6][4] =
-{ { 0.0, 0.0, 0.0, 1.0 }, { 1.0, 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0, 1.0 },
-{ 0.0, 0.0, 1.0, 1.0 }, { 1.0, 1.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0, 1.0 } }; GLfloat theta[3] = { 0.0, 0.0, 0.0 };
+float positions[3][3] = { { 0.0, 0.0, -1.0 }, { 1.0, 0.0, -1.0 }, { 0.0, 1.0, -1.0 } };
+float colors[3][4] =
+{ { 0.0, 0.0, -1.0, 1.0}, { 1.0, 0.0, -1.0, 1.0 }, { 0.0, 1.0, -1.0, 1.0 }}; 
+GLfloat theta[3] = { 0.0, 0.0, 0.0 };
 
 // write a screenshot to the specified filename
 void saveScreenshot(const char * filename)
@@ -126,7 +125,7 @@ void bindProgram()
 
 void renderQuad()
 {
-	cout << "render quad" << endl;
+	glShadeModel(GL_SMOOTH);
 	GLint first = 0;
 	GLsizei numberOfVertices = 6;
 	glDrawArrays(GL_TRIANGLES, first, numberOfVertices);
@@ -135,25 +134,13 @@ void renderQuad()
 void displayFunc()
 {
 	// render some stuff...
-	/*float p[16];
-	matrix->SetMatrixMode(OpenGLMatrix::Projection);
-	matrix->GetMatrix(p);
-	// upload array p to the GPU (setting up uniform variables slides in 04-Shaders)
-	
-	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
-	matrix->LoadIdentity();
-	matrix->LookAt();
-	//	matrix->Translate(transla;
-	//matrix->Rotate();
-	//matrix->Scale();
-
-	float m[16];
-	matrix->GetMatrix(m);
-	// upload array m to GPU*/
 	glClear(GL_COLOR_BUFFER_BIT |
 		GL_DEPTH_BUFFER_BIT);
+	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->LoadIdentity();
-	matrix->LookAt(0, 0, 0, 0, 0, -1, 0, 1, 0); // default camera
+	cout << "zStudent: " << zStudent << endl;
+	
+	matrix->LookAt(0, 0, -zStudent, 0, 0, 0, 0, 1, 0); // default camera
 	matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
 	matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
 	matrix->Rotate(theta[2], 0.0, 0.0, 1.0);
@@ -172,11 +159,13 @@ void idleFunc()
 
 void reshapeFunc(int w, int h)
 {
-	GLfloat aspect = (GLfloat)w / (GLfloat)h;
+	GLfloat aspect = 1280/720;
 	glViewport(0, 0, w, h);
 	matrix->SetMatrixMode(OpenGLMatrix::Projection);
 	matrix->LoadIdentity();
-	matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0 / aspect, 0.0, 10.0);
+	
+	matrix->Perspective(45.0, aspect, .01, 1000.0);
+	//matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0 / aspect, 0.0, 10.0);
 	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 }
 

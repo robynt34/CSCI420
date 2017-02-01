@@ -1,9 +1,10 @@
-﻿Build started 1/31/2017 11:56:37 PM.
+﻿Build started 2/1/2017 12:29:49 AM.
      1>Project "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\hw1.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../external/glm /I../external/imageIO /I"../external/jpeg-9a-win32" /I"../external/glew-1.13.0/include" /I"../external/freeglut-3.0.0-win32/include" /I"../OpenGLHelper-starterCode" /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D "SHADER_BASE_PATH=R\"(C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\../OpenGLHelper-starterCode/)\"" /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\\" /Fd"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt hw1.cpp
          hw1.cpp
-     1>hw1.cpp(179): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>hw1.cpp(58): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>hw1.cpp(167): warning C4305: 'argument' : truncation from 'double' to 'float'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.exe" /INCREMENTAL /NOLOGO /LIBPATH:"../external/jpeg-9a-win32/Debug" /LIBPATH:"../external/glew-1.13.0/lib/Debug/Win32" /LIBPATH:"../external/freeglut-3.0.0-win32/lib/Debug" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.lib" /MACHINE:X86 "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\imageIO.obj"
          "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\basicPipelineProgram.obj"
@@ -15,4 +16,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.42
+Time Elapsed 00:00:01.14
