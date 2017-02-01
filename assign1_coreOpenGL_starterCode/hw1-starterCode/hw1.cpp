@@ -59,7 +59,9 @@ float zStudent = 3 + (1310457641.0 / 10000000000);
 
 float positions[3][3] = { { 0.0, 0.0, -1.0 }, { 1.0, 0.0, -1.0 }, { 0.0, 1.0, -1.0 } };
 float colors[3][4] =
-{ { 0.0, 0.0, -1.0, 1.0}, { 1.0, 0.0, -1.0, 1.0 }, { 0.0, 1.0, -1.0, 1.0 }}; 
+{ { 1.0, 0.0, 0.0, 1.0}, { 0.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }}; 
+// (0,0,-1) (red color), (1,0,-1) (green color), (0,1,-1) (blue color)
+
 GLfloat theta[3] = { 0.0, 0.0, 0.0 };
 
 // write a screenshot to the specified filename
@@ -136,10 +138,8 @@ void displayFunc()
 	// render some stuff...
 	glClear(GL_COLOR_BUFFER_BIT |
 		GL_DEPTH_BUFFER_BIT);
-	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
+//	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->LoadIdentity();
-	cout << "zStudent: " << zStudent << endl;
-	
 	matrix->LookAt(0, 0, -zStudent, 0, 0, 0, 0, 1, 0); // default camera
 	matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
 	matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
@@ -159,11 +159,10 @@ void idleFunc()
 
 void reshapeFunc(int w, int h)
 {
-	GLfloat aspect = 1280/720;
+	GLfloat aspect = 1280/720.0;
 	glViewport(0, 0, w, h);
 	matrix->SetMatrixMode(OpenGLMatrix::Projection);
 	matrix->LoadIdentity();
-	
 	matrix->Perspective(45.0, aspect, .01, 1000.0);
 	//matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0 / aspect, 0.0, 10.0);
 	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
@@ -174,7 +173,7 @@ void mouseMotionDragFunc(int x, int y)
 	// mouse has moved and one of the mouse buttons is pressed (dragging)
 
 	// the change in mouse position since the last invocation of this function
-	int mousePosDelta[2] = { x - mousePos[0], y - mousePos[1] };
+	int mousePosDelta[2] = {  x- mousePos[0], y - mousePos[1] };
 
 	switch (controlState)
 	{
