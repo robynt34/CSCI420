@@ -58,11 +58,11 @@ BasicPipelineProgram *pipelineProgram;
 float zStudent = 3 + (1310457641.0 / 10000000000);
 
 float positions[3][3] = { { 0.0, 0.0, -1.0 }, { 1.0, 0.0, -1.0 }, { 0.0, 1.0, -1.0 } };
-float colors[3][4] =
-{ { 1.0, 0.0, 0.0, 1.0}, { 0.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }}; 
+//float colors[3][4] =
+//{ { 1.0, 0.0, 0.0, 1.0}, { 0.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }}; 
 // (0,0,-1) (red color), (1,0,-1) (green color), (0,1,-1) (blue color)
 
-
+float **colors;
 float **vertices;
 GLfloat theta[3] = { 0.0, 0.0, 0.0 };
 
@@ -86,10 +86,10 @@ void initVBO()
 	cout << "zStudent: " << zStudent << endl;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(colors), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors), NULL, GL_STATIC_DRAW);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(positions), positions);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(positions), sizeof(colors), colors);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
 }
 
 void initPipelineProgram()
@@ -106,7 +106,7 @@ void bindProgram()
 	GLuint program = pipelineProgram->GetProgramHandle();
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	GLuint loc = glGetAttribLocation(program, "position");
+	GLuint loc = glGetAttribLocation(program, "vertices");
 	glEnableVertexAttribArray(loc);
 	const void * offset = (const void*)0;
 	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, offset);
@@ -135,7 +135,7 @@ void renderQuad()
 	glShadeModel(GL_SMOOTH);
 	GLint first = 0;
 	GLsizei numberOfVertices = 3;
-	glDrawArrays(GL_TRIANGLE_STRIP, first, numberOfVertices);
+	glDrawArrays(GL_POINTS, first, numberOfVertices);
 }
 
 void displayFunc()
@@ -321,32 +321,38 @@ void initScene(int argc, char *argv[])
 
 	cout << "Height:" << height << " Width:" << width << endl;
 	vertices = new float*[width*height];
+	colors = new float*[width*height];
 
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
 		{
-			cout << "i:" << i << " j:" << j << " | ";
+		//	cout << "i:" << i << " j:" << j << " | ";
 			float height = .075 * heightmapImage->getPixel(i, j, 0);
 			float temp[3] = { i, height, j };
 
 
 			int index = i*width + j;
-			cout << "index:" << index << " | ";
-		//	vertices[index] = temp;
+		//	cout << "index:" << index << " | ";
 			vertices[index] = new float[3];
 			vertices[index][0] = i;
 			vertices[index][1] = height;
 			vertices[index][2] = j;
 
+			colors[index] = new float[4];
+			colors[index][0] = 0;
+			colors[index][1] = 1;
+			colors[index][2] = 0;
+			colors[index][3] = 1;
 
-			cout << vertices[index][0] << " " << vertices[index][1] << " " << vertices[index][2] << endl;
+		//	cout << vertices[index][0] << " " << vertices[index][1] << " " << vertices[index][2] << endl;
 
 		}
 	}
 
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	glPointSize(10.0);
 	// do additional initialization here...
-	cout << vertices[1][0] << " " << vertices[1][1] << " " << vertices[1][2] << endl;
 	glEnable(GL_DEPTH_TEST);
 	matrix = new OpenGLMatrix();
 	initVBO();
