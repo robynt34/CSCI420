@@ -2,8 +2,8 @@
 CSCI 420 Computer Graphics, USC
 Assignment 1: Height Fields
 C++ starter code
-
-Student username: <type your USC username here>
+Robyn To 1310457641
+Student username: <rto>
 */
 
 #include <iostream>
@@ -47,7 +47,7 @@ float landScale[3] = { 1.0f, 1.0f, 1.0f };
 
 int windowWidth = 1280;
 int windowHeight = 720;
-char windowTitle[512] = "CSCI 420 homework I";
+char windowTitle[512] = "CSCI 420 homework I -- Robyn To (1310457641) zStudent: 3.13105";
 
 ImageIO * heightmapImage;
 
@@ -62,6 +62,8 @@ float colors[3][4] =
 { { 1.0, 0.0, 0.0, 1.0}, { 0.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }}; 
 // (0,0,-1) (red color), (1,0,-1) (green color), (0,1,-1) (blue color)
 
+
+float **vertices;
 GLfloat theta[3] = { 0.0, 0.0, 0.0 };
 
 // write a screenshot to the specified filename
@@ -81,6 +83,7 @@ void saveScreenshot(const char * filename)
 
 void initVBO()
 {
+	cout << "zStudent: " << zStudent << endl;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions) + sizeof(colors), NULL, GL_STATIC_DRAW);
@@ -100,20 +103,22 @@ void bindProgram()
 {
 	// bind our buffer, so that glVertexAttribPointer refers
 	// to the correct buffer
-	GLuint program = pipelineProgram->GetProgramHandle();
+	GLuint program = pipelineProgram->GetProgramHandle();
+
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	GLuint loc = glGetAttribLocation(program, "position");
 	glEnableVertexAttribArray(loc);
 	const void * offset = (const void*)0;
 	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, offset);
+
 	GLuint loc2 = glGetAttribLocation(program, "color");
 	glEnableVertexAttribArray(loc2);
 	const void * offset2 = (const void*) sizeof(positions);
 	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset2);
+
 	// write projection and modelview matrix to shader
 	// next lexture…
 	GLint h_modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");
-
 	float m[16];
 	matrix->GetMatrix(m);
 	GLboolean isRowMajor = GL_FALSE;
@@ -129,8 +134,8 @@ void renderQuad()
 {
 	glShadeModel(GL_SMOOTH);
 	GLint first = 0;
-	GLsizei numberOfVertices = 6;
-	glDrawArrays(GL_TRIANGLES, first, numberOfVertices);
+	GLsizei numberOfVertices = 3;
+	glDrawArrays(GL_TRIANGLE_STRIP, first, numberOfVertices);
 }
 
 void displayFunc()
@@ -140,10 +145,11 @@ void displayFunc()
 		GL_DEPTH_BUFFER_BIT);
 //	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->LoadIdentity();
-	matrix->LookAt(0, 0, -zStudent, 0, 0, 0, 0, 1, 0); // default camera
-	matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
-	matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
-	matrix->Rotate(theta[2], 0.0, 0.0, 1.0);
+	//matrix->Rotate(theta[0], 1.0, 0.0, 0.0);
+	//matrix->Rotate(theta[1], 0.0, 1.0, 0.0);
+	//matrix->Rotate(theta[2], 0.0, 0.0, 1.0);
+	matrix->LookAt(0, 0, zStudent, 0, 0, 5, 0, 1, 0); // default camera
+
 	bindProgram();
 	renderQuad();
 	glFinish();
@@ -308,8 +314,39 @@ void initScene(int argc, char *argv[])
 	}
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	// Reading in pixels
+	int height = heightmapImage->getHeight();
+	int width = heightmapImage->getWidth();
+
+	cout << "Height:" << height << " Width:" << width << endl;
+	vertices = new float*[width*height];
+
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			cout << "i:" << i << " j:" << j << " | ";
+			float height = .075 * heightmapImage->getPixel(i, j, 0);
+			float temp[3] = { i, height, j };
+
+
+			int index = i*width + j;
+			cout << "index:" << index << " | ";
+		//	vertices[index] = temp;
+			vertices[index] = new float[3];
+			vertices[index][0] = i;
+			vertices[index][1] = height;
+			vertices[index][2] = j;
+
+
+			cout << vertices[index][0] << " " << vertices[index][1] << " " << vertices[index][2] << endl;
+
+		}
+	}
 
 	// do additional initialization here...
+	cout << vertices[1][0] << " " << vertices[1][1] << " " << vertices[1][2] << endl;
 	glEnable(GL_DEPTH_TEST);
 	matrix = new OpenGLMatrix();
 	initVBO();
