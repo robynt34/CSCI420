@@ -13,5 +13,7 @@ void main()
   // compute the vertex color (into col)
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0f);
   col = color;
+  col = vec4(0.0, 1.0, 0.0, 1.0f);
+
 }
 
