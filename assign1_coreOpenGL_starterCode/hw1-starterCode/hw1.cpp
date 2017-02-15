@@ -111,7 +111,7 @@ void initArrays()
 		for (int j = 0; j < width; j++)
 		{
 			//	cout << "i:" << i << " j:" << j << " | ";
-			float height = .075 * heightmapImage->getPixel(i, j, 0);
+			float height = heightmapImage->getPixel(i, j, 0)/9.0;
 			float temp[3] = { i, height, j };
 
 			//	cout << "index:" << index << " | ";
