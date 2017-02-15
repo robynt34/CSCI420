@@ -3,9 +3,7 @@ CSCI 420 Computer Graphics, USC
 Assignment 1: Height Fields
 C++ starter code
 
-Student username: rto
-Robyn To
-1310457641
+Student username: <type your USC username here>
 */
 
 #include <iostream>
@@ -57,8 +55,7 @@ ImageIO * heightmapImage;
 OpenGLMatrix *matrix;
 BasicPipelineProgram *pipelineProgram;
 GLuint program;
-float cameraTranslate[3] = { 0.0f, 0.0f, 0.0f };
-float *pointPositions;
+float *pointArray;
 
 float mapScaleWidth = 0.1f; // map length, to scale size
 float minScaleWidth = 0.125f;
@@ -90,9 +87,9 @@ void initArrays()
 	int width = heightmapImage->getWidth();
 	int height = heightmapImage->getHeight();
 
-	//Create array for Point
+	// Init points array
 	pointArraySize = height * width * 3;
-	pointPositions = new float[pointArraySize];
+	pointArray = new float[pointArraySize];
 
 	/*int x = 0, y = 0;
 	for (int i = 0; i < pointSize; i += 3){
@@ -106,6 +103,8 @@ void initArrays()
 			y++;
 		}
 	}*/
+
+	// Populate points array
 	int index = 0;
 	for (int i = 0; i < height; i++)
 	{
@@ -116,71 +115,61 @@ void initArrays()
 			float temp[3] = { i, height, j };
 
 			//	cout << "index:" << index << " | ";
-			pointPositions[index] = i;
+			pointArray[index] = i;
 			index++;
 			//	vertices[index] = height;
-			pointPositions[index] = height;
+			pointArray[index] = height;
 			index++;
-			pointPositions[index] = -j;
+			pointArray[index] = -j;
 			index++;
-
-			//	cout << vertices[index][0] << " " << vertices[index][1] << " " << vertices[index][2] << endl;
 		}
 	}
-
-	float mapSize = (height - 1)*(width - 1);
 }
 
-
+// Init VBOs and VAOs
 void initVO()
 {
 	//Init Point VBO
 	glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * pointArraySize, NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * pointArraySize, pointPositions);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * pointArraySize, pointArray);
 
 	//Init Point VAO
 	glBindVertexArray(pointVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, pointVAO);
-	GLuint locID1 = glGetAttribLocation(program, "position");
-	glEnableVertexAttribArray(locID1);
-	glVertexAttribPointer(locID1, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	GLuint loc = glGetAttribLocation(program, "position");
+	glEnableVertexAttribArray(loc);
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	GLuint locID2 = glGetAttribLocation(program, "color");
-	glEnableVertexAttribArray(locID2);
+	GLuint loc2 = glGetAttribLocation(program, "color");
+	glEnableVertexAttribArray(loc2);
 	void* offset = (void *)(sizeof(float) * pointArraySize);
-	glVertexAttribPointer(locID2, 4, GL_FLOAT, GL_FALSE, 0, offset);
+	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset);
 	glBindVertexArray(0);
 }
 void bindProgram()
 {
-	//Setting Model and Projection Matrix
-	//Model View Matrix
 	GLint h_modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");
 	float m[16];
 	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->GetMatrix(m);
 	glUniformMatrix4fv(h_modelViewMatrix, 1, GL_FALSE, m);
 
-	//Projection Matrix
 	GLint h_projectionMatrix = glGetUniformLocation(program, "projectionMatrix");
 	float p[16];
 	matrix->SetMatrixMode(OpenGLMatrix::Projection);
 	matrix->GetMatrix(p);
 	glUniformMatrix4fv(h_projectionMatrix, 1, GL_FALSE, p);
-
 }
 
 void displayFunc()
 {
 	// render some stuff...
-	//set up camera and world matrix
+	// Set up camera
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->LoadIdentity();
-	matrix->LookAt(cameraTranslate[0], cameraTranslate[1] + 10, cameraTranslate[2],
-		cameraTranslate[0], cameraTranslate[1], cameraTranslate[2],
-		0, 0, 1);
+	matrix->LookAt(0, 10, 0, 0, 0, 0, 0, 0, 1);
 
 	matrix->Translate(landTranslate[0], landTranslate[1], landTranslate[2]);
 	matrix->Rotate(landRotate[0], 1.0f, 0.0f, 0.0f);
@@ -188,15 +177,12 @@ void displayFunc()
 	matrix->Rotate(landRotate[2], 0.0f, 0.0f, 1.0f);
 	matrix->Scale(landScale[0], landScale[1], landScale[2]);
 
-
-	//bind
 	bindProgram();
 	initVO();
 
 	// Draw points
 	glBindVertexArray(pointVAO);
 	glDrawArrays(GL_POINTS, 0, pointArraySize);
-	
 
 	glBindVertexArray(0);
 	glutSwapBuffers();
@@ -204,18 +190,23 @@ void displayFunc()
 
 void idleFunc()
 {
-	// display result (do not forget this!)
+	// do some stuff... 
+
+	// for example, here, you can save the screenshots to disk (to make the animation)
+
+	// make the screen update 
 	glutPostRedisplay();
 }
 
 void reshapeFunc(int w, int h)
 {
+	glViewport(0, 0, w, h);
+
 	// setup perspective matrix...
 	GLfloat aspect = (GLfloat)w / (GLfloat)h;
-	glViewport(0, 0, w, h);
+	
 	matrix->SetMatrixMode(OpenGLMatrix::Projection);
 	matrix->LoadIdentity();
-
 	matrix->Perspective(100.0, aspect, 0.01, 1000.0);
 	//matrix->Ortho(-2.0, 2.0, -2.0 / aspect, 2.0 / aspect, 0.0, 10.0);
 
@@ -290,7 +281,6 @@ void mouseMotionFunc(int x, int y)
 	mousePos[1] = y;
 }
 
-
 void mouseButtonFunc(int button, int state, int x, int y)
 {
 	// a mouse button has has been pressed or depressed
@@ -332,7 +322,6 @@ void mouseButtonFunc(int button, int state, int x, int y)
 	mousePos[0] = x;
 	mousePos[1] = y;
 }
-
 void keyboardFunc(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -342,29 +331,29 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 
 	// Move Camera
-	//zoom in
-	case 'e':
-		cameraTranslate[1] -= 1.0f;
-		break;
 	//move right
+	case 'a':
+		landTranslate[0] -= 1.0f;
+		break;
+		//move left
 	case 'd':
-		cameraTranslate[0] -= 1.0f;
+		landTranslate[0] += 1.0f;
+		break;
+		//zoom in
+	case 'q':
+		landTranslate[1] -= 1.0f;
+		break;
+		//zoom out
+	case 'e':
+		landTranslate[1] += 1.0f;
 		break;
 	//move down
-	case 's':
-		cameraTranslate[2] -= 1.0f;
-		break;
-	//zoom out
-	case 'q':
-		cameraTranslate[1] += 1.0f;
-		break;
-	//move left
-	case 'a':
-		cameraTranslate[0] += 1.0f;
+	case 'w':
+		landTranslate[2] -= 1.0f;
 		break;
 	//move up
-	case 'w':
-		cameraTranslate[2] += 1.0f;
+	case 's':
+		landTranslate[2] += 1.0f;
 		break;
 
 	case ' ':
@@ -376,6 +365,14 @@ void keyboardFunc(unsigned char key, int x, int y)
 		saveScreenshot("screenshot.jpg");
 		break;
 	}
+}
+
+void initPipelineProgram()
+{
+	pipelineProgram = new BasicPipelineProgram();
+	pipelineProgram->Init("../openGLHelper-starterCode");
+	pipelineProgram->Bind();
+	program = pipelineProgram->GetProgramHandle();
 }
 
 void initScene(int argc, char *argv[])
@@ -394,13 +391,7 @@ void initScene(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 
 	matrix = new OpenGLMatrix();
-
-	//Init Pipeline Program
-	pipelineProgram = new BasicPipelineProgram();
-	pipelineProgram->Init("../openGLHelper-starterCode");
-	pipelineProgram->Bind();
-	program = pipelineProgram->GetProgramHandle();
-
+	initPipelineProgram();
 	initArrays();
 
 	glGenBuffers(1, &pointVBO);
