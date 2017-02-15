@@ -55,17 +55,26 @@ ImageIO * heightmapImage;
 OpenGLMatrix *matrix;
 BasicPipelineProgram *pipelineProgram;
 GLuint program;
-float *pointArray;
+GLuint drawMode = GL_POINTS;
+GLuint glCount;
 
-float mapScaleWidth = 0.1f; // map length, to scale size
-float minScaleWidth = 0.125f;
-float maxScaleWidth = 1.0f;
-float mapScaleHeight = 0.01f; // map height
-float minScaleHeight = 0.005f;
-float maxScaleHeight = 0.1f;
+// Point vars
+float *pointArray;
 GLuint pointArraySize;
 GLuint pointVBO;
 GLuint pointVAO;
+
+// Wireframe vars
+float *wireframeArray;
+GLuint wireframeArraySize;
+GLuint wireframeVBO;
+GLuint wireframeVAO;
+
+// Triangel vars
+float *triangleArray;
+GLuint triangleArraySize;
+GLuint triangleVBO;
+GLuint triangleVAO;
 
 // write a screenshot to the specified filename
 void saveScreenshot(const char * filename)
@@ -89,39 +98,174 @@ void initArrays()
 
 	// Init points array
 	pointArraySize = height * width * 3;
+	glCount = pointArraySize; // count is for points by default
 	pointArray = new float[pointArraySize];
 
 	/*int x = 0, y = 0;
 	for (int i = 0; i < pointSize; i += 3){
-		pointPositions[i] = (x - width / 2) * mapScaleWidth;								//x
-		pointPositions[i + 1] = heightmapImage->getPixel(x, y, 0) * mapScaleHeight;			//y
-		pointPositions[i + 2] = -(y - height / 2) * mapScaleWidth;							//z
+	pointPositions[i] = (x - width / 2) * mapScaleWidth;								//x
+	pointPositions[i + 1] = heightmapImage->getPixel(x, y, 0) * mapScaleHeight;			//y
+	pointPositions[i + 2] = -(y - height / 2) * mapScaleWidth;							//z
 
-		x++;
-		if (x == width && y < height){
-			x = 0;
-			y++;
-		}
+	x++;
+	if (x == width && y < height){
+	x = 0;
+	y++;
+	}
 	}*/
 
 	// Populate points array
+	float maxHeight = 9.0;
 	int index = 0;
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
 		{
 			//	cout << "i:" << i << " j:" << j << " | ";
-			float height = heightmapImage->getPixel(i, j, 0)/9.0;
+			float imageHeight = heightmapImage->getPixel(i, j, 0) / maxHeight;
 			float temp[3] = { i, height, j };
 
 			//	cout << "index:" << index << " | ";
 			pointArray[index] = i;
 			index++;
 			//	vertices[index] = height;
-			pointArray[index] = height;
+			pointArray[index] = imageHeight;
 			index++;
 			pointArray[index] = -j;
 			index++;
+		}
+	}
+
+	//Create array for Wireframe	
+	wireframeArraySize = height * width * 6 * 3;
+	glCount = wireframeArraySize;
+	wireframeArray = new float[wireframeArraySize];
+
+	float mapSize = (height - 1)*(width - 1);
+	index = 0;
+	/*for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			// First point
+			wireframeArray[index] = j;
+			index++;
+			wireframeArray[index] = heightmapImage->getPixel(i, j, 0) / maxHeight;
+			index++;
+			wireframeArray[index] = -i;
+			index++;
+
+			// Second point
+			wireframeArray[index] = (j+1);
+			index++;
+			wireframeArray[index] = heightmapImage->getPixel(i, (j+1), 0) / maxHeight;
+			index++;
+			wireframeArray[index] = -i;
+			index++;
+		}
+	}*/
+	int x = 0, y = 0;
+	// horizontal
+	for (int i = 0; i < mapSize * 2 * 3; i += 6){
+		// First point
+		wireframeArray[i] = x;									
+		wireframeArray[i + 1] = heightmapImage->getPixel(x, y, 0)/maxHeight;			
+		wireframeArray[i + 2] = -y;						
+		x++;
+		// Second point
+		wireframeArray[i + 3] = x ;						
+		wireframeArray[i + 4] = heightmapImage->getPixel(x, y, 0) / maxHeight;	
+		wireframeArray[i + 5] = -y;							
+		if (x == width - 1){
+			x = 0;
+			y++;
+		}
+	}
+
+	x = 0, y = 0;
+	// vertical
+	for (int i = mapSize * 2 * 3; i < mapSize * 4 * 3; i += 6){
+		// First point
+		wireframeArray[i] = x;									
+		wireframeArray[i + 1] = heightmapImage->getPixel(x, y, 0) / maxHeight;			
+		wireframeArray[i + 2] = -y;							
+
+		// Second point
+		wireframeArray[i + 3] = x;								
+		wireframeArray[i + 4] = heightmapImage->getPixel(x, (y + 1), 0) / maxHeight;
+		wireframeArray[i + 5] = -(y + 1) ;						
+		x++;
+		if (x == width - 1){
+			x = 0;
+			y++;
+		}
+	}
+	
+	x = 0, y = 0;
+	// diagonal
+	for (int i = mapSize * 4 * 3; i < mapSize * 6 * 3; i += 6){
+		// First point
+		wireframeArray[i] = x;									
+		wireframeArray[i + 1] = heightmapImage->getPixel(x, y, 0) / maxHeight;		
+		wireframeArray[i + 2] = -y;		
+
+		x++;
+
+		// Second point
+		wireframeArray[i + 3] = x;							
+		wireframeArray[i + 4] = heightmapImage->getPixel(x, (y + 1), 0) /maxHeight;	
+		wireframeArray[i + 5] = -(y + 1);							
+		
+		if (x == width - 1){
+			x = 0;
+			y++;
+		}
+	}
+
+
+	//Create array for triangles	
+	triangleArraySize = height * width * 2 * 3;
+	glCount = triangleArraySize;
+	triangleArray = new float[triangleArraySize];
+
+	x = 0, y = 0;
+	for (int i = 0; i < triangleArraySize; i += 6){
+		if (y % 2 == 0){
+			// Even strip
+			triangleArray[i] = x;								
+			triangleArray[i + 1] = heightmapImage->getPixel(x, y, 0) / maxHeight;		
+			triangleArray[i + 2] = -y;						
+
+			triangleArray[i + 3] = x;							
+			triangleArray[i + 4] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
+			triangleArray[i + 5] = -(y + 1 ) ;					
+
+			x++;
+			if (x == width){
+				x--;
+				y++;
+			}
+			if (y == height - 1){
+				break;
+			}
+		}
+		else{
+			// Odd strip
+			triangleArray[i] = x;							
+			triangleArray[i + 1] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
+			triangleArray[i + 2] = -(y+1);				
+
+			triangleArray[i + 3] = (x - 1);						
+			triangleArray[i + 4] = heightmapImage->getPixel(x - 1, y, 0) / maxHeight;	
+			triangleArray[i + 5] = -y;						
+
+			x--;
+			if (x == 0){
+				y++;
+			}
+			if (y == height - 1){
+				break;
+			}
 		}
 	}
 }
@@ -146,7 +290,44 @@ void initVO()
 	void* offset = (void *)(sizeof(float) * pointArraySize);
 	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset);
 	glBindVertexArray(0);
+
+	// Init wireframe VBO
+	glBindBuffer(GL_ARRAY_BUFFER, wireframeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * wireframeArraySize, NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * wireframeArraySize, wireframeArray);
+
+	// Init wireframe VAO
+	glBindVertexArray(wireframeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, wireframeVBO);
+	loc = glGetAttribLocation(program, "position");
+	glEnableVertexAttribArray(loc);
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+	loc2 = glGetAttribLocation(program, "color");
+	glEnableVertexAttribArray(loc2);
+	offset = (void *)(sizeof(float) * wireframeArraySize);
+	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset);
+	glBindVertexArray(0);
+
+	// Init triangle VBO
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * triangleArraySize, NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * triangleArraySize, triangleArray);
+
+	// Init triangle VAO
+	glBindVertexArray(triangleVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	loc = glGetAttribLocation(program, "position");
+	glEnableVertexAttribArray(loc);
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+	loc2 = glGetAttribLocation(program, "color");
+	glEnableVertexAttribArray(loc2);
+	offset = (void *)(sizeof(float) * triangleArraySize);
+	glVertexAttribPointer(loc2, 4, GL_FLOAT, GL_FALSE, 0, offset);
+	glBindVertexArray(0);
 }
+
 void bindProgram()
 {
 	GLint h_modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");
@@ -181,8 +362,14 @@ void displayFunc()
 	initVO();
 
 	// Draw points
-	glBindVertexArray(pointVAO);
-	glDrawArrays(GL_POINTS, 0, pointArraySize);
+	if (drawMode == GL_POINTS)
+		glBindVertexArray(pointVAO);
+	else if (drawMode == GL_LINES)
+		glBindVertexArray(wireframeVAO);
+	else if (drawMode == GL_TRIANGLE_STRIP)
+		glBindVertexArray(triangleVAO);
+	glDrawArrays(drawMode, 0, glCount);
+	
 
 	glBindVertexArray(0);
 	glutSwapBuffers();
@@ -322,6 +509,7 @@ void mouseButtonFunc(int button, int state, int x, int y)
 	mousePos[0] = x;
 	mousePos[1] = y;
 }
+
 void keyboardFunc(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -364,6 +552,17 @@ void keyboardFunc(unsigned char key, int x, int y)
 		// take a screenshot
 		saveScreenshot("screenshot.jpg");
 		break;
+	case '1':
+		drawMode = GL_POINTS;
+		initArrays();
+		break;
+	case '2':
+		drawMode = GL_LINES;
+		initArrays();
+		break;
+	case '3':
+		drawMode = GL_TRIANGLE_STRIP;
+		initArrays();
 	}
 }
 
@@ -396,6 +595,10 @@ void initScene(int argc, char *argv[])
 
 	glGenBuffers(1, &pointVBO);
 	glGenVertexArrays(1, &pointVAO);
+	glGenBuffers(1, &wireframeVBO);
+	glGenVertexArrays(1, &wireframeVAO);
+	glGenBuffers(1, &triangleVBO);
+	glGenVertexArrays(1, &triangleVAO);
 }
 
 int main(int argc, char *argv[])
