@@ -138,7 +138,6 @@ void initArrays()
 
 	//Create array for Wireframe	
 	wireframeArraySize = height * width * 6 * 3;
-	glCount = wireframeArraySize;
 	wireframeArray = new float[wireframeArraySize];
 
 	float mapSize = (height - 1)*(width - 1);
@@ -224,21 +223,22 @@ void initArrays()
 
 
 	//Create array for triangles	
-	triangleArraySize = height * width * 2 * 3;
-	glCount = triangleArraySize;
+	triangleArraySize = ((height-2) *width* 2) + (width);
+	triangleArraySize *= 3;
+	triangleArraySize += 6;
 	triangleArray = new float[triangleArraySize];
 
 	x = 0, y = 0;
-	for (int i = 0; i < triangleArraySize; i += 6){
+	for (int k = 0; k< triangleArraySize; k += 6){
 		if (y % 2 == 0){
 			// Even strip
-			triangleArray[i] = x;								
-			triangleArray[i + 1] = heightmapImage->getPixel(x, y, 0) / maxHeight;		
-			triangleArray[i + 2] = -y;						
+			triangleArray[k] = x;								
+			triangleArray[k + 1] = heightmapImage->getPixel(x, y, 0) / maxHeight;		
+			triangleArray[k + 2] = -y;						
 
-			triangleArray[i + 3] = x;							
-			triangleArray[i + 4] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
-			triangleArray[i + 5] = -(y + 1 ) ;					
+			triangleArray[k + 3] = x;							
+			triangleArray[k + 4] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
+			triangleArray[k + 5] = -(y + 1 ) ;					
 
 			x++;
 			if (x == width){
@@ -251,13 +251,13 @@ void initArrays()
 		}
 		else{
 			// Odd strip
-			triangleArray[i] = x;							
-			triangleArray[i + 1] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
-			triangleArray[i + 2] = -(y+1);				
+			triangleArray[k] = x;							
+			triangleArray[k + 1] = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;	
+			triangleArray[k + 2] = -(y+1);				
 
-			triangleArray[i + 3] = (x - 1);						
-			triangleArray[i + 4] = heightmapImage->getPixel(x - 1, y, 0) / maxHeight;	
-			triangleArray[i + 5] = -y;						
+			triangleArray[k + 3] = (x - 1);						
+			triangleArray[k + 4] = heightmapImage->getPixel(x - 1, y, 0) / maxHeight;	
+			triangleArray[k + 5] = -y;						
 
 			x--;
 			if (x == 0){
@@ -363,11 +363,20 @@ void displayFunc()
 
 	// Draw points
 	if (drawMode == GL_POINTS)
+	{
+		glCount = pointArraySize;
 		glBindVertexArray(pointVAO);
+	}
 	else if (drawMode == GL_LINES)
+	{
+		glCount = wireframeArraySize;
 		glBindVertexArray(wireframeVAO);
+	}
 	else if (drawMode == GL_TRIANGLE_STRIP)
+	{
+		glCount = triangleArraySize;
 		glBindVertexArray(triangleVAO);
+	}
 	glDrawArrays(drawMode, 0, glCount);
 	
 
@@ -554,15 +563,12 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 	case '1':
 		drawMode = GL_POINTS;
-		initArrays();
 		break;
 	case '2':
 		drawMode = GL_LINES;
-		initArrays();
 		break;
 	case '3':
 		drawMode = GL_TRIANGLE_STRIP;
-		initArrays();
 	}
 }
 
