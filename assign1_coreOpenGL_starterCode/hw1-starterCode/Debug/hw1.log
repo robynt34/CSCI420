@@ -1,45 +1,22 @@
-﻿Build started 2/15/2017 8:01:41 PM.
-     1>Project "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\hw1.vcxproj" on node 2 (Build target(s)).
+﻿Build started 2/16/2017 11:09:46 AM.
+     1>Project "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\hw1.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../external/glm /I../external/imageIO /I"../external/jpeg-9a-win32" /I"../external/glew-1.13.0/include" /I"../external/freeglut-3.0.0-win32/include" /I"../OpenGLHelper-starterCode" /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D "SHADER_BASE_PATH=R\"(C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\../OpenGLHelper-starterCode/)\"" /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\\" /Fd"C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt hw1.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../external/glm /I../external/imageIO /I"../external/jpeg-9a-win32" /I"../external/glew-1.13.0/include" /I"../external/freeglut-3.0.0-win32/include" /I"../OpenGLHelper-starterCode" /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D "SHADER_BASE_PATH=R\"(C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\../OpenGLHelper-starterCode/)\"" /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\\" /Fd"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt hw1.cpp
          hw1.cpp
-     1>hw1.cpp(126): warning C4244: 'initializing' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(129): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(134): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(143): warning C4244: 'initializing' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(170): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(172): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(175): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(177): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(186): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>hw1.cpp(188): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(190): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(193): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(195): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(205): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>hw1.cpp(207): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(209): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(214): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(216): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(232): warning C4018: '<' : signed/unsigned mismatch
-     1>hw1.cpp(235): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(237): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(239): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(241): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(254): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(256): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(258): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(260): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>hw1.cpp(406): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>hw1.cpp(112): warning C4244: 'initializing' : conversion from 'int' to 'float', possible loss of data
+     1>hw1.cpp(131): warning C4244: 'initializing' : conversion from 'int' to 'float', possible loss of data
+     1>hw1.cpp(132): warning C4244: '=' : conversion from 'float' to 'GLuint', possible loss of data
+     1>hw1.cpp(229): warning C4018: '<' : signed/unsigned mismatch
+     1>hw1.cpp(386): warning C4305: 'argument' : truncation from 'double' to 'float'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.exe" /INCREMENTAL /NOLOGO /LIBPATH:"../external/jpeg-9a-win32/Debug" /LIBPATH:"../external/glew-1.13.0/lib/Debug/Win32" /LIBPATH:"../external/freeglut-3.0.0-win32/lib/Debug" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.lib" /MACHINE:X86 "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\imageIO.obj"
-         "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\basicPipelineProgram.obj"
-         "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\openGLMatrix.obj"
-         "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\pipelineProgram.obj"
-         "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\hw1.obj"
-         hw1.vcxproj -> C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.exe
-     1>Done Building Project "C:\Users\Robyn\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\hw1.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.exe" /INCREMENTAL /NOLOGO /LIBPATH:"../external/jpeg-9a-win32/Debug" /LIBPATH:"../external/glew-1.13.0/lib/Debug/Win32" /LIBPATH:"../external/freeglut-3.0.0-win32/lib/Debug" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.lib" /MACHINE:X86 "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\imageIO.obj"
+         "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\basicPipelineProgram.obj"
+         "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\openGLMatrix.obj"
+         "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\pipelineProgram.obj"
+         "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Debug\hw1.obj"
+         hw1.vcxproj -> C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\\Bin\Debug\hw1.exe
+     1>Done Building Project "C:\Users\Robyn To\Desktop\Graphics_Spring_2017\assign1_coreOpenGL_starterCode\hw1-starterCode\hw1.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.79
+Time Elapsed 00:00:01.61
