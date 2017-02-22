@@ -159,7 +159,6 @@ int loadSplines(char * argv)
 	}
 
 	free(cName);
-
 	return 0;
 }
 
@@ -240,6 +239,7 @@ int initTexture(const char * imageFilename, GLuint textureHandle)
 	return 0;
 }
 
+//-------------------------------------------------------------------------------Assignment 2 functions above--------------------------------------------------------------------------
 
 // write a screenshot to the specified filename
 void saveScreenshot(const char * filename)
@@ -259,172 +259,28 @@ void saveScreenshot(const char * filename)
 // Populate all arrays (point/wireframe/triangle)
 void popArrays()
 {
-	int width = heightmapImage->getWidth();
-	int height = heightmapImage->getHeight();
-
 	// Init points array
-	pointArraySize = height * width * 3;
+	pointArraySize = splines[0].numControlPoints*3;
 	glCount = pointArraySize; // count is for points by default
 	pointArray = new float[pointArraySize];
 
-	float maxHeight = 9.0;
-	float centeringNum = height / 2;
+//	float maxHeight = 9.0;
+	//float centeringNum = height / 2;
 	int index = 0;
+	Point *tempPoints = splines[0].points;
 
 	// Populate points array
-	for (int i = 0; i < height; i++)
+	for (int i = 0; i < splines[0].numControlPoints; i++)
 	{
-		for (int j = 0; j < width; j++)
-		{
-			float imageHeight = heightmapImage->getPixel(i, j, 0) / maxHeight;
-			pointArray[index] = i - centeringNum;
-			index++;
-			pointArray[index] = imageHeight;
-			index++;
-			pointArray[index] = -j + centeringNum;
-			index++;
-		}
-	}
-
-	//Create array for Wireframe	
-	float mapDivision = (height - 1)*(width - 1)*2*3; // total array size /3
-	wireframeArraySize = mapDivision * 3;
-	wireframeArray = new float[wireframeArraySize];
-
-	int x = 0, y = 0;
-	bool diagFlag= false, horizontalFlag = false;
-
-	// Populate wireframe array
-	for (int i = 0; i < mapDivision*3; i += 6)
-	{
-		if (i < mapDivision)
-		{
-			// Vertical lines
-			// First point
-			float heightOfPixel = heightmapImage->getPixel(x, y, 0) / maxHeight;
-			wireframeArray[i] = x - centeringNum;
-			wireframeArray[i + 1] = heightOfPixel;
-			wireframeArray[i + 2] = -y + centeringNum;
-
-			// Second point
-			heightOfPixel = heightmapImage->getPixel(x, (y + 1), 0) / maxHeight;
-			wireframeArray[i + 3] = x - centeringNum;
-			wireframeArray[i + 4] = heightOfPixel;
-			wireframeArray[i + 5] = -(y + 1) + centeringNum;
-			x++;
-
-			// Reset x, move up one y
-			if (x >= width - 1)
-			{
-				x = 0;
-				y++;
-			}
-		}
-		else if (i >= mapDivision && i < (mapDivision*2))
-		{
-			// Horizontal lines
-			if (!horizontalFlag)
-			{
-				x = 0, y = 0;
-				horizontalFlag = true;
-			}
-
-			// First point
-			float heightOfPixel = heightmapImage->getPixel(x, y, 0) / maxHeight;
-			wireframeArray[i] = x - centeringNum;
-			wireframeArray[i + 1] = heightOfPixel;
-			wireframeArray[i + 2] = -y + centeringNum;
-			x++;
-
-			// Second point
-			heightOfPixel = heightmapImage->getPixel(x, y, 0) / maxHeight;
-			wireframeArray[i + 3] = x - centeringNum;
-			wireframeArray[i + 4] = heightOfPixel;
-			wireframeArray[i + 5] = -y + centeringNum;
-
-			// Reset x, move up one y
-			if (x >= width - 1){
-				x = 0;
-				y++;
-			}
-		}
-		else if (i >= (mapDivision * 2) && i < (mapDivision * 3))
-		{
-			// Diag lines
-			if (!diagFlag)
-			{
-				x = 0, y = 0;
-				diagFlag = true;
-			}
-			// First point
-			float heightOfPixel = heightmapImage->getPixel(x, y, 0) / maxHeight;
-			wireframeArray[i] = x - centeringNum;
-			wireframeArray[i + 1] = heightOfPixel;
-			wireframeArray[i + 2] = -y + centeringNum;
-			x++;
-
-			// Second point
-			heightOfPixel = heightmapImage->getPixel(x, (y + 1), 0) / maxHeight;
-			wireframeArray[i + 3] = x - centeringNum;
-			wireframeArray[i + 4] = heightOfPixel;
-			wireframeArray[i + 5] = -(y + 1) + centeringNum;
-
-			// Reset x, move up one y
-			if (x >= width - 1){
-				x = 0;
-				y++;
-			}
-		}
-	}
-
-	// Create array for triangles	
-	triangleArraySize = ((height-2) *width* 2) + (width);
-	triangleArraySize *= 3;
-	triangleArraySize += 6;
-	triangleArray = new float[triangleArraySize];
-
-	x = 0, y = 0;
-	// Populate triangles array
-	for (int k = 0; k < triangleArraySize; k += 6){
-		if (y % 2 == 0){
-			// Even row
-			// First point
-			float heightOfPixel = heightmapImage->getPixel(x, y, 0) / maxHeight;
-			triangleArray[k] = x - centeringNum;
-			triangleArray[k + 1] = heightOfPixel;		
-			triangleArray[k + 2] = -y + centeringNum;
-
-			// Second point
-			heightOfPixel = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;
-			triangleArray[k + 3] = x - centeringNum;
-			triangleArray[k + 4] = heightOfPixel;
-			triangleArray[k + 5] = -(y + 1) + centeringNum;
-
-			x++;
-			if (x == width){
-				x--;
-				y++;
-			}
-		}
-		else{
-			// Odd row
-			// First point
-			float heightOfPixel = heightmapImage->getPixel(x, y + 1, 0) / maxHeight;
-			triangleArray[k] = x - centeringNum;
-			triangleArray[k + 1] = heightOfPixel;
-			triangleArray[k + 2] = -(y + 1) + centeringNum;
-
-			// Second point
-			heightOfPixel = heightmapImage->getPixel(x - 1, y, 0) / maxHeight;
-			triangleArray[k + 3] = (x - 1) - centeringNum;
-			triangleArray[k + 4] = heightOfPixel;
-			triangleArray[k + 5] = -y + centeringNum;
-
-			x--;
-			if (x == 0){
-				y++;
-			}
-		}
+		pointArray[index] = splines[0].points[i].x;
+		cout << pointArray[index] << " ";
+		index++;
+		pointArray[index] = splines[0].points[i].y;
+		cout << pointArray[index] << " ";
+		index++;
+		pointArray[index] = splines[0].points[i].z;
+		cout << pointArray[index] << endl;
+		index++;
 	}
 }
 
@@ -490,7 +346,7 @@ void displayFunc()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	matrix->SetMatrixMode(OpenGLMatrix::ModelView);
 	matrix->LoadIdentity();
-	matrix->LookAt(0, 130, 0, 0, 0, 0, 0, 0, 1);
+	matrix->LookAt(0, 4, 0, 0, 0, 0, 0, 0, 1);
 
 	matrix->Translate(landTranslate[0], landTranslate[1], landTranslate[2]);
 	matrix->Rotate(landRotate[0], 1.0f, 0.0f, 0.0f);
@@ -505,6 +361,8 @@ void displayFunc()
 	if (drawMode == GL_POINTS)
 	{
 		glCount = pointArraySize;
+		glPointSize(10.0);
+		glEnable(GL_POINT_SMOOTH);
 		glBindVertexArray(pointVAO);
 	}
 	else if (drawMode == GL_LINES)
@@ -739,22 +597,6 @@ void initPipelineProgram()
 
 void initScene(int argc, char *argv[])
 {
-
-	// load the image from a jpeg disk file to main memory
-	heightmapImage = new ImageIO();
-	if (heightmapImage->loadJPEG(argv[1]) != ImageIO::OK)
-	{
-		cout << "Error reading image " << argv[1] << "." << endl;
-		exit(EXIT_FAILURE);
-	}
-
-	funnyPhoto = new ImageIO();
-	if (funnyPhoto->loadJPEG("./heightmap/please.jpg") != ImageIO::OK)
-	{
-		cout << "could not open Robyn's extra image...delete lines in initscene" << endl;
-		exit(EXIT_FAILURE);
-	}
-
 	// do additional initialization here...
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -774,13 +616,6 @@ void initScene(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
-	{
-		cout << "The arguments are incorrect." << endl;
-		cout << "usage: ./hw1 <heightmap file>" << endl;
-		exit(EXIT_FAILURE);
-	}
-
 	if (argc<2)
 	{
 		printf("usage: %s <trackfile>\n", argv[0]);
