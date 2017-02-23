@@ -19,6 +19,7 @@ Robyn To
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 #ifdef WIN32
 #ifdef _DEBUG
@@ -77,29 +78,16 @@ ImageIO * heightmapImage;
 OpenGLMatrix *matrix;
 BasicPipelineProgram *pipelineProgram;
 GLuint program;
-GLuint drawMode = GL_POINTS;
+GLuint drawMode = GL_LINES;
 GLuint glCount;
 
 // Point vars
-float *pointArray;
+vector<float> points;
+vector<float> uvs;
 GLuint pointArraySize;
 GLuint pointVBO;
 GLuint pointVAO;
 
-// Wireframe vars
-float *wireframeArray;
-GLuint wireframeArraySize;
-GLuint wireframeVBO;
-GLuint wireframeVAO;
-
-// Triangel vars
-float *triangleArray;
-GLuint triangleArraySize;
-GLuint triangleVBO;
-GLuint triangleVAO;
-
-// Extra photo
-ImageIO * funnyPhoto;
 
 
 /* ASSIGNMENT 2 VARS----------------------------------------------------------------------------------------*/
@@ -256,31 +244,66 @@ void saveScreenshot(const char * filename)
 	delete[] screenshotData;
 }
 
+Point getCatmallPoint(Point p0, Point p1, Point p2, Point p3, float u)
+{
+	float s = 0.5f;
+	float basis_matrix[16] = { -s, 2 - s, s - 2, s,
+		2 * s, s - 3, 3 - (2 * s), -s,
+		-s, 0, s, 0,
+		0, 1, 0, 0 };
+
+	float x1 = p0.x;
+	float x2 = p1.x;
+	float x3 = p2.x;
+	float x4 = p3.x;
+
+	float y1 = p0.y;
+	float y2 = p1.y;
+	float y3 = p2.y;
+	float y4 = p3.y;
+
+	float z1 = p0.z;
+	float z2 = p1.z;
+	float z3 = p2.z;
+	float z4 = p3.z;
+
+	float control_matrix[12] = { x1, y1, z1,
+		x2, y2, z2,
+		x3, y3, z3,
+		x4, y4, z4 };
+	float u3 = u*u*u;
+	float u2 = u*u;
+	float uMatrix[4] = { u3, u2, u, 1 };
+
+
+	Point toReturn;
+}
+
 // Populate all arrays (point/wireframe/triangle)
-void popArrays()
+void populateVectors()
 {
 	// Init points array
 	pointArraySize = splines[0].numControlPoints*3;
 	glCount = pointArraySize; // count is for points by default
-	pointArray = new float[pointArraySize];
+	//pointArray = new float[pointArraySize];
 
 //	float maxHeight = 9.0;
 	//float centeringNum = height / 2;
 	int index = 0;
 	Point *tempPoints = splines[0].points;
+	
 
 	// Populate points array
-	for (int i = 0; i < splines[0].numControlPoints; i++)
+	for (int i = 0; i < splines[0].numControlPoints - 3; i++)
 	{
-		pointArray[index] = splines[0].points[i].x;
-		cout << pointArray[index] << " ";
-		index++;
-		pointArray[index] = splines[0].points[i].y;
-		cout << pointArray[index] << " ";
-		index++;
-		pointArray[index] = splines[0].points[i].z;
-		cout << pointArray[index] << endl;
-		index++;
+		Point p0 = splines[0].points[i];
+		Point p1 = splines[0].points[i + 1];
+		Point p2 = splines[0].points[i + 2];
+		Point p3 = splines[0].points[i + 3];
+
+		Point toAdd = getCatmallPoint(p0, p1, p2, p3);
+		
+		
 	}
 }
 
@@ -289,37 +312,13 @@ void initVO()
 {
 	//Init Point VBO
 	glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * pointArraySize, NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * pointArraySize, pointArray);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * points.size(), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * points.size(), points.data());
 
 	//Init Point VAO
 	glBindVertexArray(pointVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, pointVAO);
 	GLuint loc = glGetAttribLocation(program, "position");
-	glEnableVertexAttribArray(loc);
-	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-	// Init wireframe VBO
-	glBindBuffer(GL_ARRAY_BUFFER, wireframeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * wireframeArraySize, NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * wireframeArraySize, wireframeArray);
-
-	// Init wireframe VAO
-	glBindVertexArray(wireframeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, wireframeVBO);
-	loc = glGetAttribLocation(program, "position");
-	glEnableVertexAttribArray(loc);
-	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-	// Init triangle VBO
-	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * triangleArraySize, NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * triangleArraySize, triangleArray);
-
-	// Init triangle VAO
-	glBindVertexArray(triangleVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
-	loc = glGetAttribLocation(program, "position");
 	glEnableVertexAttribArray(loc);
 	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 }
@@ -358,22 +357,12 @@ void displayFunc()
 	initVO();
 
 	// Draw points
-	if (drawMode == GL_POINTS)
+	if (drawMode == GL_LINES)
 	{
 		glCount = pointArraySize;
 		glPointSize(10.0);
-		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_LINE_SMOOTH);
 		glBindVertexArray(pointVAO);
-	}
-	else if (drawMode == GL_LINES)
-	{
-		glCount = wireframeArraySize;
-		glBindVertexArray(wireframeVAO);
-	}
-	else if (drawMode == GL_TRIANGLE_STRIP)
-	{
-		glCount = triangleArraySize;
-		glBindVertexArray(triangleVAO);
 	}
 	glDrawArrays(drawMode, 0, glCount/3);
 
@@ -562,10 +551,10 @@ void keyboardFunc(unsigned char key, int x, int y)
 		drawMode = GL_POINTS;
 		break;
 	case '2':
-		drawMode = GL_LINES;
+		//drawMode = GL_LINES;
 		break;
 	case '3':
-		drawMode = GL_TRIANGLE_STRIP;
+		//drawMode = GL_TRIANGLE_STRIP;
 		break;
 	case '4':
 		landRotate[1] += 1;
@@ -578,11 +567,6 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 	case '5':
 		landRotate[0] -= 1;
-		break;
-	case 'p':
-		//funny photo
-		heightmapImage = funnyPhoto;
-		popArrays();
 		break;
 	}
 }
@@ -603,15 +587,11 @@ void initScene(int argc, char *argv[])
 
 	matrix = new OpenGLMatrix();
 	initPipelineProgram();
-	popArrays();
+	populateVectors();
 
 	// Generate all buffers
 	glGenBuffers(1, &pointVBO);
 	glGenVertexArrays(1, &pointVAO);
-	glGenBuffers(1, &wireframeVBO);
-	glGenVertexArrays(1, &wireframeVAO);
-	glGenBuffers(1, &triangleVBO);
-	glGenVertexArrays(1, &triangleVAO);
 }
 
 int main(int argc, char *argv[])
